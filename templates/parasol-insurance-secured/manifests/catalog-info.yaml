@@ -5,6 +5,13 @@ metadata:
   description: Secured dev sandbox for Parasol Insurance (${{ values.branch }} branch)
   annotations:
     argocd/app-name: parasol-insurance-secured-${{ values.owner }}-${{ values.branch }}
+    backstage.io/source-location: url:https://${{ values.gitlab_host }}/parasol/parasol-insurance/-/tree/${{ values.branch }}
+    gitlab.com/project-slug: parasol/parasol-insurance
+  links:
+    - url: https://devspaces.${{ values.cluster_subdomain }}/#https://${{ values.gitlab_host }}/parasol/parasol-insurance/-/tree/${{ values.branch }}
+      title: Open in Dev Spaces
+      icon: catalog
+      type: devspaces
 spec:
   type: service
   lifecycle: development

@@ -29,16 +29,3 @@ spec:
         - ref: parasol-insurance-secured-push-binding
       template:
         ref: parasol-insurance-secured-push-template
----
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: parasol-insurance-secured-listener
-  namespace: ${{ values.namespace }}
-spec:
-  to:
-    kind: Service
-    name: el-parasol-insurance-secured-listener
-  tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect

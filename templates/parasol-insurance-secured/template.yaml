@@ -34,7 +34,7 @@ spec:
           source_repo: https://{{ gitlab_host }}/parasol/parasol-insurance.git
           owner: ${{ user.entity.metadata.name }}
           image_host: {{ quay_host }}
-          image_organization: parasol
+          image_organization: ${{ user.entity.metadata.name }}
           image_name: parasol-insurance-secured
           image_tag: latest
           gitlab_host: {{ gitlab_host }}
