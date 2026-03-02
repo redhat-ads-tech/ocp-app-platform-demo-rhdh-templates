@@ -15,5 +15,5 @@ metadata:
 spec:
   type: service
   lifecycle: development
-  owner: ${{ values.owner }}
+  owner: user:default/${{ values.owner }}
   system: parasol-insurance
