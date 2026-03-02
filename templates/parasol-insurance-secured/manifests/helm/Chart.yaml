@@ -1,0 +1,5 @@
+apiVersion: v2
+name: parasol-insurance-secured-sandbox
+description: Parasol Insurance secured development sandbox
+type: application
+version: 0.1.0

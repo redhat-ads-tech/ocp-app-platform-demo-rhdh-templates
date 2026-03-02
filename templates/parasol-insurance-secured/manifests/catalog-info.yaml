@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: parasol-insurance-secured-${{ values.owner }}-${{ values.branch }}
+  description: Secured dev sandbox for Parasol Insurance (${{ values.branch }} branch)
+  annotations:
+    argocd/app-name: parasol-insurance-secured-${{ values.owner }}-${{ values.branch }}
+spec:
+  type: service
+  lifecycle: development
+  owner: ${{ values.owner }}
+  system: parasol-insurance

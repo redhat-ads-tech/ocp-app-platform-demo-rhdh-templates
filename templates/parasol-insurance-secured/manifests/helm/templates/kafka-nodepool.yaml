@@ -1,0 +1,14 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: combined
+  namespace: ${{ values.namespace }}
+  labels:
+    strimzi.io/cluster: parasol-kafka
+spec:
+  replicas: 1
+  roles:
+    - controller
+    - broker
+  storage:
+    type: ephemeral

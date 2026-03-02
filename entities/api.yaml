@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: parasol-insurance-api
+  description: REST API for managing insurance claims
+spec:
+  type: openapi
+  lifecycle: production
+  owner: devteam1
+  system: parasol-insurance
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: Parasol Insurance Claims API
+      version: "1.0"
+    paths:
+      /api/claims:
+        get:
+          summary: List all claims
+      /api/claims/{claimNumber}:
+        get:
+          summary: Get a claim by number

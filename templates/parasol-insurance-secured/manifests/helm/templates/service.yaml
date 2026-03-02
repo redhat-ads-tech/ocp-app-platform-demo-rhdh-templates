@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: parasol-insurance-secured
+  namespace: ${{ values.namespace }}
+  labels:
+    app: parasol-insurance-secured
+spec:
+  selector:
+    app: parasol-insurance-secured
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http

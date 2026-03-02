@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: parasol-insurance-secured-build
+  namespace: ${{ values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: parasol-insurance-secured-build-edit
+  namespace: ${{ values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+subjects:
+  - kind: ServiceAccount
+    name: parasol-insurance-secured-build
+    namespace: ${{ values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: parasol-insurance-secured-build-${{ values.owner }}-triggers
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: openshift-pipelines-clusterinterceptors
+subjects:
+  - kind: ServiceAccount
+    name: parasol-insurance-secured-build
+    namespace: ${{ values.namespace }}

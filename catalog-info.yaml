@@ -2,7 +2,8 @@ apiVersion: backstage.io/v1alpha1
 kind: Location
 metadata:
   name: pe-owned-templates
-  description: Templates owned by the Platform Engineering team
+  description: Templates and entities owned by the Platform Engineering team
 spec:
   targets:
     - ./templates/**/*.yaml
+    - ./entities/**/*.yaml

@@ -1,0 +1,44 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: parasol-insurance-secured-listener
+  namespace: ${{ values.namespace }}
+spec:
+  serviceAccountName: parasol-insurance-secured-build
+  triggers:
+    - name: push
+      interceptors:
+        - ref:
+            name: gitlab
+            kind: ClusterInterceptor
+          params:
+            - name: secretRef
+              value:
+                secretName: gitlab-credentials
+                secretKey: token
+            - name: eventTypes
+              value:
+                - "Push Hook"
+        - ref:
+            name: cel
+            kind: ClusterInterceptor
+          params:
+            - name: filter
+              value: "body.ref == 'refs/heads/${{ values.branch }}'"
+      bindings:
+        - ref: parasol-insurance-secured-push-binding
+      template:
+        ref: parasol-insurance-secured-push-template
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: parasol-insurance-secured-listener
+  namespace: ${{ values.namespace }}
+spec:
+  to:
+    kind: Service
+    name: el-parasol-insurance-secured-listener
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

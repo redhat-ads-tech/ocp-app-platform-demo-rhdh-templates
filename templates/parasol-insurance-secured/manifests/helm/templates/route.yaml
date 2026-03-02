@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: parasol-insurance-secured
+  namespace: ${{ values.namespace }}
+  labels:
+    app: parasol-insurance-secured
+spec:
+  to:
+    kind: Service
+    name: parasol-insurance-secured
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

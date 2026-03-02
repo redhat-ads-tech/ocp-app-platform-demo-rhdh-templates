@@ -1,0 +1,7 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: parasol-insurance
+  description: Parasol Insurance claims management platform
+spec:
+  owner: devteam1

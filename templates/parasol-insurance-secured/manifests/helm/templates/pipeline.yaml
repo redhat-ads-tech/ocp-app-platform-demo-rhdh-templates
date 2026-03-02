@@ -1,0 +1,119 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: parasol-insurance-secured-push
+  namespace: ${{ values.namespace }}
+spec:
+  params:
+    - name: git-revision
+      type: string
+  workspaces:
+    - name: source
+    - name: basic-auth
+    - name: dockerconfig
+    - name: sonar-credentials
+  tasks:
+    - name: clone-source
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: URL
+          value: "${{ values.source_repo }}"
+        - name: REVISION
+          value: $(params.git-revision)
+        - name: SSL_VERIFY
+          value: "false"
+      workspaces:
+        - name: output
+          workspace: source
+        - name: basic-auth
+          workspace: basic-auth
+    - name: build-and-push
+      runAfter:
+        - clone-source
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: IMAGE
+          value: "${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}:${{ values.image_tag }}"
+        - name: DOCKERFILE
+          value: Containerfile
+        - name: TLSVERIFY
+          value: "false"
+        - name: STORAGE_DRIVER
+          value: vfs
+      workspaces:
+        - name: source
+          workspace: source
+        - name: dockerconfig
+          workspace: dockerconfig
+    - name: sonar-scan
+      runAfter:
+        - clone-source
+      taskRef:
+        name: sonar-scan-secured
+      params:
+        - name: SONAR_HOST_URL
+          value: "http://sonarqube.sonarqube.svc:9000"
+        - name: SONAR_PROJECT_KEY
+          value: parasol-insurance
+      workspaces:
+        - name: source
+          workspace: source
+        - name: sonar-credentials
+          workspace: sonar-credentials
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: sonar-scan-secured
+  namespace: ${{ values.namespace }}
+spec:
+  params:
+    - name: SONAR_HOST_URL
+      type: string
+      default: "http://sonarqube.sonarqube.svc:9000"
+    - name: SONAR_PROJECT_KEY
+      type: string
+      default: "parasol-insurance"
+  workspaces:
+    - name: source
+    - name: sonar-credentials
+  steps:
+    - name: sonar-scan
+      image: registry.access.redhat.com/ubi9/openjdk-21:1.20
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: SONAR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sonarqube-credentials
+              key: password
+      script: |
+        #!/usr/bin/env bash
+        set -x
+
+        SONAR_HOST_URL="$(params.SONAR_HOST_URL)"
+        SONAR_PROJECT_KEY="$(params.SONAR_PROJECT_KEY)"
+        SONAR_LOGIN="admin"
+
+        mvn verify sonar:sonar \
+          -Dsonar.host.url="${SONAR_HOST_URL}" \
+          -Dsonar.projectKey="${SONAR_PROJECT_KEY}" \
+          -Dsonar.login="${SONAR_LOGIN}" \
+          -Dsonar.password="${SONAR_PASSWORD}" \
+          -Dsonar.qualitygate.wait=false || true

@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: parasol-insurance
+  description: Parasol Insurance claims management application
+spec:
+  type: service
+  lifecycle: production
+  owner: devteam1
+  system: parasol-insurance
+  providesApis:
+    - parasol-insurance-api
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: parasol-insurance-secured
+  description: Parasol Insurance application with secured build pipeline
+spec:
+  type: service
+  lifecycle: production
+  owner: devteam1
+  system: parasol-insurance
+  providesApis:
+    - parasol-insurance-api
