@@ -31,21 +31,21 @@ spec:
         values:
           namespace: parasol-insurance-secured-${{ user.entity.metadata.name }}
           branch: ${{ parameters.branch }}
-          source_repo: https://__GITLAB_HOST__/parasol/parasol-insurance.git
+          source_repo: https://{{ gitlab_host }}/parasol/parasol-insurance.git
           owner: ${{ user.entity.metadata.name }}
-          image_host: __REGISTRY_HOST__
+          image_host: {{ quay_host }}
           image_organization: parasol
           image_name: parasol-insurance-secured
           image_tag: latest
-          gitlab_host: __GITLAB_HOST__
-          cluster_subdomain: __CLUSTER_SUBDOMAIN__
-          gitops_namespace: __GITOPS_NAMESPACE__
+          gitlab_host: {{ gitlab_host }}
+          cluster_subdomain: {{ cluster_subdomain }}
+          gitops_namespace: {{ rhdh_gitops_namespace }}
 
     - id: publish
       name: Publish to GitLab
       action: publish:gitlab
       input:
-        repoUrl: __GITLAB_HOST__?owner=${{ user.entity.metadata.name }}&repo=parasol-insurance-secured-${{ parameters.branch }}-gitops
+        repoUrl: {{ gitlab_host }}?owner=${{ user.entity.metadata.name }}&repo=parasol-insurance-secured-${{ parameters.branch }}-gitops
         defaultBranch: main
         repoVisibility: public
 
@@ -55,7 +55,7 @@ spec:
       input:
         appName: parasol-insurance-secured-${{ user.entity.metadata.name }}-${{ parameters.branch }}
         argoInstance: main
-        namespace: __GITOPS_NAMESPACE__
+        namespace: {{ rhdh_gitops_namespace }}
         repoUrl: ${{ steps.publish.output.remoteUrl }}
         path: argocd
 
