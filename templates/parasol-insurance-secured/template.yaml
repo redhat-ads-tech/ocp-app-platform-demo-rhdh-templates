@@ -56,7 +56,7 @@ spec:
         appName: parasol-insurance-secured-${{ user.entity.metadata.name }}-${{ parameters.branch }}
         argoInstance: main
         namespace: {{ rhdh_gitops_namespace }}
-        repoUrl: ${{ steps.publish.output.remoteUrl }}
+        repoUrl: ${{ steps.publish.output.remoteUrl }}.git
         path: argocd
 
     - id: register
