@@ -1,0 +1,89 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sample-template
+  title: Deploy Application to Environment
+  description: Request a Component deployment in an environment. Creates a PR that requires approval by PE.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - openshift
+    - task
+spec:
+  owner: platform-engineering
+  type: template
+  # Edit the template parameters below to see how they will render in the scaffolder form UI
+  parameters:
+    - title: Select the Component
+      required:
+        - component
+        - environment
+      properties:
+        component:
+          title: Component
+          type: string
+          description: The Component you wish to deploy
+          ui:field: EntityPicker
+          ui:options:
+            allowArbitraryValues: false
+            catalogFilter:
+              kind: Component
+        environment:
+          title: Environment
+          type: string
+          oneOf:
+            - title: "Production"
+              const: production
+            - title: "Development"
+              const: development
+          default: development
+          description: Select the target environment
+
+  steps:
+    - id: writeFile
+      name: Create File
+      action: roadiehq:utils:fs:write
+      input:
+        path: application.yaml
+        content: |
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: ${{ parameters.component | parseEntityRef | pick('name') }}
+            namespace: janus-argocd
+            labels:
+              environment: ${{ parameters.environment }}
+              component: ${{ parameters.component | parseEntityRef | pick('name') }}
+          spec:
+            project: default
+            source:
+              repoURL: https://github.com/rhdh-demo-gh/${{ parameters.component | parseEntityRef | pick('name') }}-manifests.git
+              targetRevision: main
+              path: ${{ parameters.environment }}
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: ${{ parameters.component | parseEntityRef | pick('name') }}-${{ parameters.environment }}
+            syncPolicy:
+              syncOptions:
+                - CreateNamespace=true
+              automated:
+                prune: true
+                selfHeal: true
+    
+    - id: openPullRequest
+      name: Create Pull Request
+      action: publish:github:pull-request
+      input:
+        repoUrl: github.com?repo=app-of-apps&owner=rhdh-demo-gh
+        title: "🤖 New Application (${{ parameters.environment }}): ${{ parameters.component | parseEntityRef | pick('name') }}"
+        description: "User @${{ user.entity.metadata.name }} requests a new ${{ parameters.environment }} deployment for Component **${{ parameters.component | parseEntityRef | pick('name') }}**! 🚀"
+        commitMessage: "feat: add application.yaml for ${{ parameters.component | parseEntityRef | pick('name') }}"
+        sourcePath: ./
+        targetPath: ./${{ parameters.environment }}/${{ parameters.component | parseEntityRef | pick('name') }}
+        update: true
+        branchName: add-${{ parameters.component | parseEntityRef | pick('name') }}
+  
+  output:
+    links:
+      - url: ${{ steps.openPullRequest.output.remoteUrl }}
+        title: Deployment Pull Request 
