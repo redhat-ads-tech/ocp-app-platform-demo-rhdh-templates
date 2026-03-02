@@ -21,6 +21,30 @@ spec:
           title: Branch Name
           type: string
           description: Branch name in the parasol-insurance source repo
+    - title: Infrastructure Settings
+      required:
+        - gitlab_host
+        - registry_host
+        - cluster_subdomain
+        - gitops_namespace
+      properties:
+        gitlab_host:
+          title: GitLab Host
+          type: string
+          description: GitLab hostname (e.g. gitlab-gitlab.apps.cluster.example.com)
+        registry_host:
+          title: Registry Host
+          type: string
+          description: Container registry hostname (e.g. quay-quay.apps.cluster.example.com)
+        cluster_subdomain:
+          title: Cluster Subdomain
+          type: string
+          description: OpenShift apps subdomain (e.g. apps.cluster.example.com)
+        gitops_namespace:
+          title: GitOps Namespace
+          type: string
+          description: ArgoCD namespace
+          default: rhdh-gitops
 
   steps:
     - id: fetch-skeleton
@@ -31,21 +55,22 @@ spec:
         values:
           namespace: parasol-insurance-secured-${{ user.entity.metadata.name }}
           branch: ${{ parameters.branch }}
-          source_repo: https://${{ values.gitlab_host }}/parasol/parasol-insurance.git
+          source_repo: https://${{ parameters.gitlab_host }}/parasol/parasol-insurance.git
           owner: ${{ user.entity.metadata.name }}
-          image_host: ${{ values.registry_host }}
+          image_host: ${{ parameters.registry_host }}
           image_organization: parasol
           image_name: parasol-insurance-secured
           image_tag: latest
-          gitlab_host: ${{ values.gitlab_host }}
-          cluster_subdomain: ${{ values.cluster_subdomain }}
-          gitops_namespace: ${{ values.gitops_namespace }}
+          gitlab_host: ${{ parameters.gitlab_host }}
+          cluster_subdomain: ${{ parameters.cluster_subdomain }}
+          gitops_namespace: ${{ parameters.gitops_namespace }}
+          source_gitops_repo_url: ${{ steps.publish.output.remoteUrl }}
 
     - id: publish
       name: Publish to GitLab
       action: publish:gitlab
       input:
-        repoUrl: ${{ values.gitlab_host }}?owner=${{ user.entity.metadata.name }}&repo=parasol-insurance-secured-${{ parameters.branch }}-gitops
+        repoUrl: ${{ parameters.gitlab_host }}?owner=${{ user.entity.metadata.name }}&repo=parasol-insurance-secured-${{ parameters.branch }}-gitops
         defaultBranch: main
         repoVisibility: public
 
@@ -55,7 +80,7 @@ spec:
       input:
         appName: parasol-insurance-secured-${{ user.entity.metadata.name }}-${{ parameters.branch }}
         argoInstance: main
-        namespace: ${{ values.gitops_namespace }}
+        namespace: ${{ parameters.gitops_namespace }}
         repoUrl: ${{ steps.publish.output.remoteUrl }}
         path: argocd
 
