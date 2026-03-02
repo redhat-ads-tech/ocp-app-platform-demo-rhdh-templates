@@ -5,5 +5,8 @@ metadata:
   description: Templates and entities owned by the Platform Engineering team
 spec:
   targets:
-    - ./templates/*/template.yaml
-    - ./entities/**/*.yaml
+    - ./templates/sample-template/template.yaml
+    - ./templates/parasol-insurance-secured/template.yaml
+    - ./entities/system.yaml
+    - ./entities/api.yaml
+    - ./entities/components.yaml
