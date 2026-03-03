@@ -6,6 +6,9 @@ metadata:
   annotations:
     argocd/app-name: parasol-insurance-secured-${{ values.owner }}-${{ values.branch }}
     backstage.io/source-location: url:https://${{ values.gitlab_host }}/parasol/parasol-insurance/-/tree/${{ values.branch }}
+    backstage.io/kubernetes-namespace: ${{ values.namespace }}
+    backstage.io/kubernetes-id: parasol-insurance-secured
+    janus-idp.io/tekton: ${{ values.namespace }}
     gitlab.com/project-slug: parasol/parasol-insurance
   links:
     - url: https://devspaces.${{ values.cluster_subdomain }}/#https://${{ values.gitlab_host }}/parasol/parasol-insurance/-/tree/${{ values.branch }}
