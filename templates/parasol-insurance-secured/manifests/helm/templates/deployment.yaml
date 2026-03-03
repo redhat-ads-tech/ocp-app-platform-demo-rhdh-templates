@@ -7,6 +7,7 @@ metadata:
     app: parasol-insurance-secured
     app.kubernetes.io/name: parasol-insurance-secured
     app.kubernetes.io/part-of: parasol-insurance-secured
+    app.openshift.io/runtime: quarkus
     backstage.io/kubernetes-id: parasol-insurance-secured
   annotations:
     app.openshift.io/vcs-uri: "${{ values.source_repo }}"
