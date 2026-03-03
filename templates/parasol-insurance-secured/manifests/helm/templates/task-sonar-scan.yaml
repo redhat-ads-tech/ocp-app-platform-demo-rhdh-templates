@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: sonar-scan-secured
+  namespace: ${{ values.namespace }}
+spec:
+  params:
+    - name: SONAR_HOST_URL
+      type: string
+      default: "http://sonarqube.sonarqube.svc:9000"
+    - name: SONAR_PROJECT_KEY
+      type: string
+      default: "parasol-insurance"
+  workspaces:
+    - name: source
+    - name: sonar-credentials
+  steps:
+    - name: sonar-scan
+      image: registry.access.redhat.com/ubi9/openjdk-21:1.20
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: SONAR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sonarqube-credentials
+              key: password
+      script: |
+        #!/usr/bin/env bash
+        set -x
+
+        SONAR_HOST_URL="$(params.SONAR_HOST_URL)"
+        SONAR_PROJECT_KEY="$(params.SONAR_PROJECT_KEY)"
+        SONAR_LOGIN="admin"
+
+        mvn verify sonar:sonar \
+          -Dsonar.host.url="${SONAR_HOST_URL}" \
+          -Dsonar.projectKey="${SONAR_PROJECT_KEY}" \
+          -Dsonar.login="${SONAR_LOGIN}" \
+          -Dsonar.password="${SONAR_PASSWORD}" \
+          -Dsonar.qualitygate.wait=true
