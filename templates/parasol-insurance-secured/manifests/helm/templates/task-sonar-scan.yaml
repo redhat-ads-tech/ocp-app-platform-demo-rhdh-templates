@@ -17,6 +17,8 @@ spec:
   results:
     - name: SONAR_REPORT_URL
       description: Link to the SonarQube quality report
+    - name: SONAR_QUALITY_GATE
+      description: Quality gate status (PASSED or FAILED)
   workspaces:
     - name: source
     - name: sonar-credentials
@@ -38,16 +40,12 @@ spec:
         SONAR_PROJECT_KEY="$(params.SONAR_PROJECT_KEY)"
         SONAR_LOGIN="admin"
 
-        # Determine the external dashboard URL
         DASHBOARD_URL="$(params.SONAR_DASHBOARD_URL)"
         if [ -z "${DASHBOARD_URL}" ]; then
           DASHBOARD_URL="${SONAR_HOST_URL}"
         fi
         REPORT_URL="${DASHBOARD_URL}/dashboard?id=${SONAR_PROJECT_KEY}"
-
-        # Write result before scan so it's available even on failure
         echo -n "${REPORT_URL}" > $(results.SONAR_REPORT_URL.path)
-        echo "SonarQube report: ${REPORT_URL}"
 
         mvn verify sonar:sonar \
           -Dsonar.host.url="${SONAR_HOST_URL}" \
@@ -55,3 +53,18 @@ spec:
           -Dsonar.login="${SONAR_LOGIN}" \
           -Dsonar.password="${SONAR_PASSWORD}" \
           -Dsonar.qualitygate.wait=true
+        SCAN_EXIT=$?
+
+        if [ ${SCAN_EXIT} -eq 0 ]; then
+          echo -n "PASSED" > $(results.SONAR_QUALITY_GATE.path)
+        else
+          echo -n "FAILED" > $(results.SONAR_QUALITY_GATE.path)
+        fi
+
+        echo ""
+        echo "============================================"
+        echo "SonarQube Report: ${REPORT_URL}"
+        echo "============================================"
+        echo ""
+
+        exit ${SCAN_EXIT}
