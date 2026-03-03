@@ -4,6 +4,7 @@ metadata:
   name: parasol-insurance-secured-listener
   namespace: ${{ values.namespace }}
 spec:
+  host: el-secured-${{ values.owner }}.${{ values.cluster_subdomain }}
   to:
     kind: Service
     name: el-parasol-insurance-secured-listener
