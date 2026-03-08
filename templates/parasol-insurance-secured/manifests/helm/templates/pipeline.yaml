@@ -16,6 +16,7 @@ spec:
     - name: basic-auth
     - name: dockerconfig
     - name: sonar-credentials
+    - name: maven-cache
   tasks:
     - name: clone-source
       taskRef:
@@ -56,9 +57,19 @@ spec:
     #       workspace: source
     #     - name: sonar-credentials
     #       workspace: sonar-credentials
-    - name: build-and-push
+    - name: maven-build
       runAfter:
         - clone-source
+      taskRef:
+        name: maven-build-secured
+      workspaces:
+        - name: source
+          workspace: source
+        - name: maven-cache
+          workspace: maven-cache
+    - name: build-and-push
+      runAfter:
+        - maven-build
       taskRef:
         resolver: cluster
         params:

@@ -38,3 +38,6 @@ spec:
           - name: sonar-credentials
             secret:
               secretName: sonarqube-credentials
+          - name: maven-cache
+            persistentVolumeClaim:
+              claimName: maven-cache
