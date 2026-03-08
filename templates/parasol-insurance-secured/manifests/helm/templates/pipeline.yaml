@@ -98,10 +98,40 @@ spec:
       params:
         - name: IMAGE
           value: "${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}:${{ values.image_tag }}"
-    - name: rollout-restart
+    - name: generate-sbom
       runAfter:
         - acs-image-scan
         - acs-image-check
+      taskRef:
+        name: generate-sbom-secured
+      params:
+        - name: IMAGE
+          value: "${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}:${{ values.image_tag }}"
+        - name: SOURCE_NAME
+          value: "parasol-insurance-${{ values.branch }}"
+        - name: SOURCE_VERSION
+          value: $(params.git-revision)
+      workspaces:
+        - name: source
+          workspace: source
+        - name: dockerconfig
+          workspace: dockerconfig
+    - name: upload-sbom-to-tpa
+      runAfter:
+        - generate-sbom
+      taskRef:
+        name: upload-sbom-to-tpa-secured
+      params:
+        - name: LABEL_DEV
+          value: "${{ values.dev_email }}"
+        - name: LABEL_COMPONENT
+          value: "parasol-insurance-secured-${{ values.owner }}"
+      workspaces:
+        - name: source
+          workspace: source
+    - name: rollout-restart
+      runAfter:
+        - upload-sbom-to-tpa
       taskRef:
         name: rollout-restart-secured
       params:

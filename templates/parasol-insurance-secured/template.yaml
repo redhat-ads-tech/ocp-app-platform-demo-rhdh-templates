@@ -40,6 +40,7 @@ spec:
           gitlab_host: {{ gitlab_host }}
           cluster_subdomain: {{ cluster_subdomain }}
           gitops_namespace: {{ rhdh_gitops_namespace }}
+          dev_email: ${{ user.entity.spec.profile.email }}
 
     - id: publish
       name: Publish to GitLab
