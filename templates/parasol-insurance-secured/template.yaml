@@ -54,7 +54,7 @@ spec:
       name: Create ArgoCD Resources
       action: argocd:create-resources
       input:
-        appName: parasol-insurance-secured-${{ user.entity.metadata.name }}-${{ parameters.branch }}
+        appName: parasol-insurance-secured-${{ user.entity.metadata.name }}-${{ parameters.branch }}-bootstrap
         argoInstance: main
         namespace: {{ rhdh_gitops_namespace }}
         repoUrl: ${{ steps.publish.output.remoteUrl }}.git
