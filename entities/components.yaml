@@ -16,6 +16,10 @@ kind: Component
 metadata:
   name: parasol-insurance-secured
   description: Parasol Insurance application with secured build pipeline
+  annotations:
+    backstage.io/kubernetes-id: parasol-insurance-secured
+    backstage.io/kubernetes-namespace: parasol-insurance-secured-build
+    janus-idp.io/tekton: parasol-insurance-secured
 spec:
   type: service
   lifecycle: production
