@@ -23,6 +23,15 @@ spec:
           description: Branch name in the parasol-insurance source repo
 
   steps:
+    - id: create-branch
+      name: Create Source Branch
+      action: gitlab:repo:push
+      input:
+        repoUrl: {{ gitlab_host }}?repo=parasol-insurance&owner=parasol
+        branchName: ${{ parameters.branch }}
+        commitMessage: 'Scaffolder commit initializing branch "${{ parameters.branch }}"'
+        commitAction: create
+
     - id: fetch-skeleton
       name: Fetch Skeleton
       action: fetch:template

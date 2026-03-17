@@ -69,23 +69,7 @@ spec:
 
               echo "Project ID: ${PROJECT_ID}"
 
-              # Create branch from main if it doesn't exist
-              echo "Creating branch ${BRANCH} from main..."
-              BRANCH_STATUS=$(curl -sk -o /dev/null -w "%{http_code}" \
-                --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-                "https://${GITLAB_HOST}/api/v4/projects/${PROJECT_ID}/repository/branches/${BRANCH}")
-
-              if [ "${BRANCH_STATUS}" = "404" ]; then
-                curl -sk --fail \
-                  --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
-                  --header "Content-Type: application/json" \
-                  --request POST \
-                  --data "{\"branch\":\"${BRANCH}\",\"ref\":\"main\"}" \
-                  "https://${GITLAB_HOST}/api/v4/projects/${PROJECT_ID}/repository/branches"
-                echo "Branch ${BRANCH} created."
-              else
-                echo "Branch ${BRANCH} already exists."
-              fi
+              # Branch is created by the scaffolder via gitlab:repo:push
 
               # Create webhook on parasol-insurance repo
               EXISTING=$(curl -sk --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
