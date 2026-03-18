@@ -1,0 +1,26 @@
+app:
+  name: ${{ values.name }}
+
+  namespace:
+    name: ${{ values.name }}-prod
+    istio:
+      enabled: true
+
+  image:
+    repository: ${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}
+    tag: latest
+
+  replicas: 2
+
+  route:
+    enabled: true
+
+  waypoint:
+    enabled: true
+
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+
+  vcsUri: "${{ values.source_repo }}"

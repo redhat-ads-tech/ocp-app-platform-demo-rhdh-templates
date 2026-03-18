@@ -1,0 +1,21 @@
+app:
+  name: ${{ values.name }}
+
+  namespace:
+    name: ${{ values.name }}-dev
+    istio:
+      enabled: true
+
+  image:
+    repository: ${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}
+    tag: ${{ values.image_tag }}
+
+  replicas: 1
+
+  route:
+    enabled: true
+
+  waypoint:
+    enabled: true
+
+  vcsUri: "${{ values.source_repo }}"

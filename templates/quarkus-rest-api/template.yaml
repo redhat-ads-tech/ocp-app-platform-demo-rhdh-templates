@@ -1,0 +1,124 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: quarkus-rest-api
+  title: Quarkus REST API
+  description: Create a secured Quarkus REST API with CI/CD pipeline, dev deployment, and production promotion
+  tags:
+    - quarkus
+    - rest-api
+    - secured
+spec:
+  owner: rhdh
+  type: service
+
+  parameters:
+    - title: Application Details
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Application Name
+          type: string
+          description: Unique name for this application (lowercase, hyphens allowed)
+          pattern: "^[a-z][a-z0-9-]*$"
+        owner:
+          title: Owner
+          type: string
+          description: Group that owns this application
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        description:
+          title: Description
+          type: string
+          description: Short description displayed in the Backstage catalog
+
+    - title: Image Registry
+      required:
+        - imageOrganization
+      properties:
+        imageOrganization:
+          title: Image Organization
+          type: string
+          description: Quay organization (e.g. parasol, myorg)
+
+  # Jinja variables ({{ gitlab_host }}, {{ quay_host }}, etc.) are replaced with
+  # cluster-specific values when the Ansible import job pushes templates to GitLab
+  # during cluster setup. They are NOT Backstage scaffolder expressions.
+  steps:
+    - id: fetch-source
+      name: Fetch Source Skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton/
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          gitlab_group: parasol
+          gitlab_host: {{ gitlab_host }}                    # replaced by import job
+          cluster_subdomain: {{ cluster_subdomain }}        # replaced by import job
+
+    - id: publish-source
+      name: Publish Source to GitLab
+      action: publish:gitlab
+      input:
+        repoUrl: {{ gitlab_host }}?owner=parasol&repo=${{ parameters.name }}
+        defaultBranch: main
+        repoVisibility: public
+
+    - id: fetch-manifests
+      name: Fetch GitOps Manifests
+      action: fetch:template
+      input:
+        url: ./manifests/
+        values:
+          name: ${{ parameters.name }}
+          owner: parasol
+          source_repo: ${{ steps['publish-source'].output.remoteUrl }}.git
+          image_host: {{ quay_host }}                       # replaced by import job
+          image_organization: ${{ parameters.imageOrganization }}
+          image_name: ${{ parameters.name }}
+          image_tag: latest
+          gitlab_host: {{ gitlab_host }}                    # replaced by import job
+          cluster_subdomain: {{ cluster_subdomain }}        # replaced by import job
+          gitops_namespace: {{ rhdh_gitops_namespace }}     # replaced by import job
+          chart_repo_url: {{ chart_repo_url }}              # replaced by import job
+
+    - id: publish-manifests
+      name: Publish Manifests to GitLab
+      action: publish:gitlab
+      input:
+        repoUrl: {{ gitlab_host }}?owner=parasol&repo=${{ parameters.name }}-gitops
+        defaultBranch: main
+        repoVisibility: public
+
+    - id: create-argocd-resources
+      name: Create ArgoCD Resources
+      action: argocd:create-resources
+      input:
+        appName: ${{ parameters.name }}-bootstrap
+        argoInstance: main
+        namespace: {{ rhdh_gitops_namespace }}              # replaced by import job
+        repoUrl: ${{ steps['publish-manifests'].output.remoteUrl }}.git
+        path: argocd
+
+    - id: register
+      name: Register Component
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish-source'].output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Source Repository
+        url: ${{ steps['publish-source'].output.remoteUrl }}
+      - title: GitOps Repository
+        url: ${{ steps['publish-manifests'].output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
