@@ -13,3 +13,5 @@ spec:
   type: kafka-user
   lifecycle: production
   owner: ${{ values.owner }}
+  dependsOn:
+    - resource:default/kafka-cluster

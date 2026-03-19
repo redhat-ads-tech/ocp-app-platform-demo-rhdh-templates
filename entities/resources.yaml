@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kafka-cluster
+  description: Shared Kafka cluster (AMQ Streams)
+  tags:
+    - kafka
+    - amq-streams
+spec:
+  type: kafka-cluster
+  lifecycle: production
+  owner: platformengineers
