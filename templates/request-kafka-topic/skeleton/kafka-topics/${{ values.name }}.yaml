@@ -5,6 +5,7 @@ metadata:
   labels:
     strimzi.io/cluster: kafka
     app.kubernetes.io/managed-by: infra-app-of-apps
+  annotations:
     app.kubernetes.io/requested-by: ${{ values.owner }}
 spec:
   partitions: ${{ values.partitions }}
