@@ -55,6 +55,7 @@ spec:
       action: fetch:template
       input:
         url: ./skeleton/
+        targetPath: source
         values:
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
@@ -68,6 +69,7 @@ spec:
       action: publish:gitlab
       input:
         repoUrl: {{ gitlab_host }}?owner=parasol&repo=${{ parameters.name }}
+        sourcePath: source
         defaultBranch: main
         repoVisibility: public
 
@@ -76,6 +78,7 @@ spec:
       action: fetch:template
       input:
         url: ./manifests/
+        targetPath: manifests
         values:
           name: ${{ parameters.name }}
           owner: parasol
@@ -94,6 +97,7 @@ spec:
       action: publish:gitlab
       input:
         repoUrl: {{ gitlab_host }}?owner=parasol&repo=${{ parameters.name }}-gitops
+        sourcePath: manifests
         defaultBranch: main
         repoVisibility: public
 
