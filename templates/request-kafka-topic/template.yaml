@@ -78,7 +78,7 @@ spec:
       name: Open Merge Request
       action: publish:gitlab:merge-request
       input:
-        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=platform
+        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=rhdh
         branchName: request/kafka-topic-${{ parameters.name }}
         title: "Request Kafka Topic: ${{ parameters.name }}"
         description: |
@@ -90,7 +90,8 @@ spec:
 
           ---
           Requested via Red Hat Developer Hub.
-        commitMessage: "feat: request kafka topic ${{ parameters.name }}"
+        removeSourceBranch: true
+        assignReviewersFromApprovalRules: true
 
   output:
     links:
