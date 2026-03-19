@@ -104,7 +104,9 @@ spec:
           ---
           Requested via Red Hat Developer Hub.
         removeSourceBranch: true
-        assignReviewersFromApprovalRules: true
+        reviewers:
+          - pe1
+          - pe2
 
   output:
     links:
