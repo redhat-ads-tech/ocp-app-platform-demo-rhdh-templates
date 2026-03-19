@@ -44,6 +44,7 @@ spec:
           title: Image Organization
           type: string
           description: Quay organization (e.g. parasol, myorg)
+          default: parasol
 
   # Jinja variables ({{ gitlab_host }}, {{ quay_host }}, etc.) are replaced with
   # cluster-specific values when the Ansible import job pushes templates to GitLab
