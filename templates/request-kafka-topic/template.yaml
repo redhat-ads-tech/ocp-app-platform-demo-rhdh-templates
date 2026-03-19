@@ -1,0 +1,98 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: request-kafka-topic
+  title: Request Kafka Topic
+  description: Request a new Kafka topic on the shared cluster (creates a merge request for platform team approval)
+  tags:
+    - kafka
+    - infrastructure
+    - request
+spec:
+  owner: rhdh
+  type: resource
+
+  parameters:
+    - title: Topic Details
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: Topic Name
+          type: string
+          description: Name for the Kafka topic (lowercase, hyphens and underscores allowed)
+          pattern: "^[a-z][a-z0-9._-]*$"
+        owner:
+          title: Owning Team
+          type: string
+          description: Team that owns this topic
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        partitions:
+          title: Partitions
+          type: integer
+          description: Number of partitions
+          default: 1
+          minimum: 1
+          maximum: 12
+        retention:
+          title: Retention (ms)
+          type: integer
+          description: Message retention in milliseconds (-1 for infinite)
+          default: -1
+          enum:
+            - -1
+            - 86400000
+            - 604800000
+            - 2592000000
+          enumNames:
+            - Infinite
+            - 1 day
+            - 7 days
+            - 30 days
+        description:
+          title: Description
+          type: string
+          description: What this topic is used for
+
+  # Jinja variables ({{ gitlab_host }}, etc.) are replaced with cluster-specific
+  # values when the Ansible import job pushes templates to GitLab during cluster setup.
+  steps:
+    - id: fetch-skeleton
+      name: Render Topic Resources
+      action: fetch:template
+      input:
+        url: ./skeleton/
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          partitions: ${{ parameters.partitions }}
+          retention: ${{ parameters.retention }}
+          description: ${{ parameters.description }}
+          gitlab_host: {{ gitlab_host }}                    # replaced by import job
+
+    - id: open-mr
+      name: Open Merge Request
+      action: publish:gitlab:merge-request
+      input:
+        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=platform
+        branchName: request/kafka-topic-${{ parameters.name }}
+        title: "Request Kafka Topic: ${{ parameters.name }}"
+        description: |
+          **Topic:** `${{ parameters.name }}`
+          **Owner:** ${{ parameters.owner }}
+          **Partitions:** ${{ parameters.partitions }}
+          **Retention:** ${{ parameters.retention }} ms
+          **Description:** ${{ parameters.description }}
+
+          ---
+          Requested via Red Hat Developer Hub.
+        commitMessage: "feat: request kafka topic ${{ parameters.name }}"
+
+  output:
+    links:
+      - title: Merge Request
+        url: ${{ steps['open-mr'].output.mergeRequestUrl }}

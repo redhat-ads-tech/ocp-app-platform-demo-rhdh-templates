@@ -1,0 +1,45 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaUser
+metadata:
+  name: ${{ values.name }}
+  labels:
+    strimzi.io/cluster: kafka
+    app.kubernetes.io/managed-by: infra-app-of-apps
+    app.kubernetes.io/requested-by: ${{ values.owner }}
+spec:
+  authentication:
+    type: scram-sha-512
+  authorization:
+    type: simple
+    acls:
+      - operations:
+          - Describe
+        resource:
+          type: cluster
+{%- if values.access == "read" or values.access == "readwrite" %}
+      - operations:
+          - Read
+          - Describe
+        resource:
+          name: ${{ values.topics }}
+          patternType: ${{ values.topicPatternType }}
+          type: topic
+      - operations:
+          - Read
+        resource:
+          name: ${{ values.name }}
+          patternType: prefix
+          type: group
+{%- endif %}
+{%- if values.access == "write" or values.access == "readwrite" %}
+      - operations:
+          - Write
+          - Describe
+{%- if values.access == "write" %}
+          - Create
+{%- endif %}
+        resource:
+          name: ${{ values.topics }}
+          patternType: ${{ values.topicPatternType }}
+          type: topic
+{%- endif %}

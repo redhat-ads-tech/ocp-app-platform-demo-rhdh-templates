@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kafka-user-${{ values.name }}
+  description: ${{ values.description }}
+  annotations:
+    backstage.io/managed-by-location: url:https://${{ values.gitlab_host }}/platform/infra-app-of-apps/-/blob/main/kafka-users/${{ values.name }}.yaml
+  tags:
+    - kafka
+    - user
+spec:
+  type: kafka-user
+  lifecycle: production
+  owner: ${{ values.owner }}

@@ -1,0 +1,111 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: request-kafka-user
+  title: Request Kafka User
+  description: Request a new Kafka user with topic ACLs on the shared cluster (creates a merge request for platform team approval)
+  tags:
+    - kafka
+    - infrastructure
+    - request
+spec:
+  owner: rhdh
+  type: resource
+
+  parameters:
+    - title: User Details
+      required:
+        - name
+        - owner
+      properties:
+        name:
+          title: User Name
+          type: string
+          description: Name for the Kafka user (lowercase, hyphens allowed)
+          pattern: "^[a-z][a-z0-9-]*$"
+        owner:
+          title: Owning Team
+          type: string
+          description: Team that owns this user
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        description:
+          title: Description
+          type: string
+          description: What this user is for (e.g. "parasol-insurance dev environment")
+
+    - title: Topic Access
+      required:
+        - topics
+        - access
+      properties:
+        topics:
+          title: Topic Pattern
+          type: string
+          description: "Topic name or prefix to grant access to (e.g. 'intake' for exact match, 'orders' for prefix match)"
+        topicPatternType:
+          title: Pattern Type
+          type: string
+          description: How to match the topic name
+          default: literal
+          enum:
+            - literal
+            - prefix
+          enumNames:
+            - Exact match
+            - Prefix match
+        access:
+          title: Access Level
+          type: string
+          description: Operations allowed on the matched topics
+          default: readwrite
+          enum:
+            - read
+            - write
+            - readwrite
+          enumNames:
+            - Read only
+            - Write only
+            - Read & Write
+
+  # Jinja variables ({{ gitlab_host }}, etc.) are replaced with cluster-specific
+  # values when the Ansible import job pushes templates to GitLab during cluster setup.
+  steps:
+    - id: fetch-skeleton
+      name: Render User Resources
+      action: fetch:template
+      input:
+        url: ./skeleton/
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          topics: ${{ parameters.topics }}
+          topicPatternType: ${{ parameters.topicPatternType }}
+          access: ${{ parameters.access }}
+          description: ${{ parameters.description }}
+          gitlab_host: {{ gitlab_host }}                    # replaced by import job
+
+    - id: open-mr
+      name: Open Merge Request
+      action: publish:gitlab:merge-request
+      input:
+        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=platform
+        branchName: request/kafka-user-${{ parameters.name }}
+        title: "Request Kafka User: ${{ parameters.name }}"
+        description: |
+          **User:** `${{ parameters.name }}`
+          **Owner:** ${{ parameters.owner }}
+          **Topics:** `${{ parameters.topics }}` (${{ parameters.topicPatternType }})
+          **Access:** ${{ parameters.access }}
+          **Description:** ${{ parameters.description }}
+
+          ---
+          Requested via Red Hat Developer Hub.
+        commitMessage: "feat: request kafka user ${{ parameters.name }}"
+
+  output:
+    links:
+      - title: Merge Request
+        url: ${{ steps['open-mr'].output.mergeRequestUrl }}

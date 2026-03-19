@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kafka-topic-${{ values.name | replace("_", "-") }}
+  description: ${{ values.description }}
+  annotations:
+    backstage.io/managed-by-location: url:https://${{ values.gitlab_host }}/platform/infra-app-of-apps/-/blob/main/kafka-topics/${{ values.name }}.yaml
+  tags:
+    - kafka
+    - topic
+spec:
+  type: kafka-topic
+  lifecycle: production
+  owner: ${{ values.owner }}

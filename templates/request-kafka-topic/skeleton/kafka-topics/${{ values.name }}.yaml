@@ -1,0 +1,15 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: ${{ values.name | replace("_", "-") }}
+  labels:
+    strimzi.io/cluster: kafka
+    app.kubernetes.io/managed-by: infra-app-of-apps
+    app.kubernetes.io/requested-by: ${{ values.owner }}
+spec:
+  partitions: ${{ values.partitions }}
+  replicas: 1
+  config:
+    retention.ms: "${{ values.retention }}"
+    segment.bytes: 1073741824
+  topicName: ${{ values.name }}
