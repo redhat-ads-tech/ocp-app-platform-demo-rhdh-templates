@@ -4,7 +4,7 @@ metadata:
   name: kafka-topic-${{ values.name | replace("_", "-") }}
   description: ${{ values.description }}
   annotations:
-    backstage.io/managed-by-location: url:https://${{ values.gitlab_host }}/platform/infra-app-of-apps/-/blob/main/kafka-topics/${{ values.name }}.yaml
+    backstage.io/managed-by-location: url:https://${{ values.gitlab_host }}/rhdh/infra-app-of-apps/-/blob/main/kafka-topics/${{ values.name }}.yaml
   tags:
     - kafka
     - topic
