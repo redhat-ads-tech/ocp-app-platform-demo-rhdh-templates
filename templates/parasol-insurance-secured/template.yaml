@@ -2,8 +2,10 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: parasol-insurance-secured-dev
-  title: Parasol Insurance Secured Development
-  description: Create a secured development sandbox for the Parasol Insurance app
+  title: Onboarding features on Parasol Insurance application
+  description: Creates a feature branch to add a new feature for Parasol Insurance application, including the CICD pipelines using GitOps.
+  annotations:
+    backstage.io/techdocs-ref: dir:.
   tags:
     - parasol
     - secured

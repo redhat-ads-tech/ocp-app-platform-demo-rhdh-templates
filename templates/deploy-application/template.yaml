@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: sample-template
+  name: deploy-application
   title: Deploy Application to Environment
-  description: Request a Component deployment in an environment. Creates a PR that requires approval by PE.
+  description: Request a Component deployment in an environment. Creates a MR that requires approval by the Platform Engineering Team.
   annotations:
     backstage.io/techdocs-ref: dir:.
   tags:
