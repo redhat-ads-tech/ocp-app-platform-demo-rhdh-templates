@@ -4,8 +4,6 @@ metadata:
   name: sample-template
   title: Deploy Application to Environment
   description: Request a Component deployment in an environment. Creates a PR that requires approval by PE.
-  annotations:
-    backstage.io/techdocs-ref: dir:.
   tags:
     - openshift
     - task
