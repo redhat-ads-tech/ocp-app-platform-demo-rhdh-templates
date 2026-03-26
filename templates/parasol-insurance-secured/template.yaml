@@ -27,7 +27,7 @@ spec:
       name: Create Source Branch
       action: gitlab:repo:push
       input:
-        repoUrl: {{ gitlab_host }}?repo=parasol-insurance&owner=parasol
+        repoUrl: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io?repo=parasol-insurance&owner=parasol
         branchName: ${{ parameters.branch }}
         commitMessage: 'Scaffolder commit initializing branch "${{ parameters.branch }}"'
         commitAction: create
@@ -40,14 +40,14 @@ spec:
         values:
           namespace: parasol-insurance-secured-${{ user.entity.metadata.name }}
           branch: ${{ parameters.branch }}
-          source_repo: https://{{ gitlab_host }}/parasol/parasol-insurance.git
+          source_repo: https://gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io/parasol/parasol-insurance.git
           owner: ${{ user.entity.metadata.name }}
-          image_host: {{ quay_host }}
+          image_host: quay.apps.cluster-xsdw9.dynamic.redhatworkshops.io
           image_organization: parasol
           image_name: parasol-insurance-secured-${{ user.entity.metadata.name }}
           image_tag: latest
-          gitlab_host: {{ gitlab_host }}
-          cluster_subdomain: {{ cluster_subdomain }}
+          gitlab_host: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io
+          cluster_subdomain: apps.cluster-xsdw9.dynamic.redhatworkshops.io
           gitops_namespace: {{ rhdh_gitops_namespace }}
           dev_email: ${{ user.entity.spec.profile.email }}
 
@@ -55,7 +55,7 @@ spec:
       name: Publish to GitLab
       action: publish:gitlab
       input:
-        repoUrl: {{ gitlab_host }}?owner=${{ user.entity.metadata.name }}&repo=parasol-insurance-secured-${{ parameters.branch }}-gitops
+        repoUrl: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io?owner=${{ user.entity.metadata.name }}&repo=parasol-insurance-secured-${{ parameters.branch }}-gitops
         defaultBranch: main
         repoVisibility: public
 

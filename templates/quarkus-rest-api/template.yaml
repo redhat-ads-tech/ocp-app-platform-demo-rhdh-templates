@@ -46,7 +46,7 @@ spec:
           description: Quay organization (e.g. parasol, myorg)
           default: parasol
 
-  # Jinja variables ({{ gitlab_host }}, {{ quay_host }}, etc.) are replaced with
+  # Jinja variables (gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io, quay.apps.cluster-xsdw9.dynamic.redhatworkshops.io, etc.) are replaced with
   # cluster-specific values when the Ansible import job pushes templates to GitLab
   # during cluster setup. They are NOT Backstage scaffolder expressions.
   steps:
@@ -61,14 +61,14 @@ spec:
           description: ${{ parameters.description }}
           owner: ${{ parameters.owner }}
           gitlab_group: parasol
-          gitlab_host: {{ gitlab_host }}                    # replaced by import job
-          cluster_subdomain: {{ cluster_subdomain }}        # replaced by import job
+          gitlab_host: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io                    # replaced by import job
+          cluster_subdomain: apps.cluster-xsdw9.dynamic.redhatworkshops.io        # replaced by import job
 
     - id: publish-source
       name: Publish Source to GitLab
       action: publish:gitlab
       input:
-        repoUrl: {{ gitlab_host }}?owner=parasol&repo=${{ parameters.name }}
+        repoUrl: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io?owner=parasol&repo=${{ parameters.name }}
         sourcePath: source
         defaultBranch: main
         repoVisibility: public
@@ -83,20 +83,20 @@ spec:
           name: ${{ parameters.name }}
           owner: parasol
           source_repo: ${{ steps['publish-source'].output.remoteUrl }}.git
-          image_host: {{ quay_host }}                       # replaced by import job
+          image_host: quay.apps.cluster-xsdw9.dynamic.redhatworkshops.io                       # replaced by import job
           image_organization: ${{ parameters.imageOrganization }}
           image_name: ${{ parameters.name }}
           image_tag: latest
-          gitlab_host: {{ gitlab_host }}                    # replaced by import job
-          cluster_subdomain: {{ cluster_subdomain }}        # replaced by import job
-          gitops_namespace: {{ rhdh_gitops_namespace }}     # replaced by import job
-          chart_repo_url: {{ chart_repo_url }}              # replaced by import job
+          gitlab_host: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io                    # replaced by import job
+          cluster_subdomain: apps.cluster-xsdw9.dynamic.redhatworkshops.io        # replaced by import job
+          gitops_namespace: rhdh-gitops     # replaced by import job
+          chart_repo_url: https://redhat-ads-tech.github.io/ocp-app-platform-demo-apps-helm              # replaced by import job
 
     - id: publish-manifests
       name: Publish Manifests to GitLab
       action: publish:gitlab
       input:
-        repoUrl: {{ gitlab_host }}?owner=parasol&repo=${{ parameters.name }}-gitops
+        repoUrl: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io?owner=parasol&repo=${{ parameters.name }}-gitops
         sourcePath: manifests
         defaultBranch: main
         repoVisibility: public
@@ -107,7 +107,7 @@ spec:
       input:
         appName: ${{ parameters.name }}-bootstrap
         argoInstance: main
-        namespace: {{ rhdh_gitops_namespace }}              # replaced by import job
+        namespace: rhdh-gitops              # replaced by import job
         repoUrl: ${{ steps['publish-manifests'].output.remoteUrl }}.git
         path: argocd
 
