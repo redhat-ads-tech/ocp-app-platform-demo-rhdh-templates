@@ -24,7 +24,7 @@ spec:
             kind: ClusterInterceptor
           params:
             - name: filter
-              value: "body.ref == 'refs/heads/${{ values.branch }}'"
+              value: "body.ref == 'refs/heads/${{ values.branch }}' && body.after != '0000000000000000000000000000000000000000'"
       bindings:
         - ref: parasol-insurance-secured-push-binding
       template:
