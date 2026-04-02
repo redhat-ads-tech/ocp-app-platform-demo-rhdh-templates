@@ -70,7 +70,7 @@ spec:
             - Write only
             - Read & Write
 
-  # Jinja variables (gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io, etc.) are replaced with cluster-specific
+  # Jinja variables ({{ gitlab_host }}, etc.) are replaced with cluster-specific
   # values when the Ansible import job pushes templates to GitLab during cluster setup.
   steps:
     - id: fetch-skeleton
@@ -85,13 +85,13 @@ spec:
           topicPatternType: ${{ parameters.topicPatternType }}
           access: ${{ parameters.access }}
           description: ${{ parameters.description }}
-          gitlab_host: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io                    # replaced by import job
+          gitlab_host: {{ gitlab_host }}                    # replaced by import job
 
     - id: open-mr
       name: Open Merge Request
       action: publish:gitlab:merge-request
       input:
-        repoUrl: gitlab-gitlab.apps.cluster-xsdw9.dynamic.redhatworkshops.io?repo=infra-app-of-apps&owner=rhdh
+        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=rhdh
         branchName: request/kafka-user-${{ parameters.name }}
         title: "Request Kafka User: ${{ parameters.name }}"
         description: |
