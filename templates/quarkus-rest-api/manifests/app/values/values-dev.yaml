@@ -10,6 +10,9 @@ app:
     repository: ${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}
     tag: ${{ values.image_tag }}
 
+  environment: dev
+  runtime: quarkus
+
   replicas: 1
 
   route:
