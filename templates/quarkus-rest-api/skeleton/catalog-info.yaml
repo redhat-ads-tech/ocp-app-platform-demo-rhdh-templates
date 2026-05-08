@@ -10,6 +10,8 @@ metadata:
     backstage.io/kubernetes-id: ${{ values.name }}
     janus-idp.io/tekton: ${{ values.name }}-build
     gitlab.com/project-slug: ${{ values.gitlab_group }}/${{ values.name }}
+    jira/project-key: ${{ values.name | upper }}
+    quay.io/repository-slug: parasol/${{ values.name }}
   links:
     - url: https://devspaces.${{ values.cluster_subdomain }}/#https://${{ values.gitlab_host }}/${{ values.gitlab_group }}/${{ values.name }}
       title: Open in Dev Spaces

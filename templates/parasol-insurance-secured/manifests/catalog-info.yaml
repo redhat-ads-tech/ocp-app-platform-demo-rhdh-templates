@@ -10,6 +10,8 @@ metadata:
     backstage.io/kubernetes-id: parasol-insurance-secured
     janus-idp.io/tekton: ${{ values.namespace }}
     gitlab.com/project-slug: parasol/parasol-insurance
+    jira/project-key: PARASOL
+    quay.io/repository-slug: parasol/parasol-insurance
   links:
     - url: https://devspaces.${{ values.cluster_subdomain }}/#https://${{ values.gitlab_host }}/parasol/parasol-insurance/-/tree/${{ values.branch }}
       title: Open in Dev Spaces

@@ -3,6 +3,9 @@ kind: Component
 metadata:
   name: parasol-insurance
   description: Parasol Insurance claims management application
+  annotations:
+    jira/project-key: PARASOL
+    quay.io/repository-slug: parasol/parasol-insurance
 spec:
   type: service
   lifecycle: production
@@ -20,6 +23,8 @@ metadata:
     backstage.io/kubernetes-id: parasol-insurance-secured
     backstage.io/kubernetes-namespace: parasol-insurance-secured-build
     janus-idp.io/tekton: parasol-insurance-secured
+    jira/project-key: PARASOL
+    quay.io/repository-slug: parasol/parasol-insurance
 spec:
   type: service
   lifecycle: production
