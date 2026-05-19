@@ -5,8 +5,9 @@ metadata:
   description: Parasol Insurance claims management application
   annotations:
     backstage.io/kubernetes-id: parasol-insurance
-    janus-idp.io/tekton: parasol-insurance-build
-    backstage.io/kubernetes-label-selector: app.kubernetes.io/name=parasol-insurance
+    janus-idp.io/tekton: parasol-insurance
+    # Additional selector to ensure only builds not using the secure tools are selected
+    backstage.io/kubernetes-label-selector: app.kubernetes.io/name=parasol-insurance,backstage.io/kubernetes-id=parasol-insurance
     jira/project-key: PARASOL
     quay.io/repository-slug: parasol/parasol-insurance
 spec:
@@ -24,8 +25,9 @@ metadata:
   description: Parasol Insurance application with secured build pipeline
   annotations:
     backstage.io/kubernetes-id: parasol-insurance-secured
-    backstage.io/kubernetes-label-selector: app.kubernetes.io/name=parasol-insurance-secured
-    janus-idp.io/tekton: parasol-insurance-secured-build
+    # Additional selector to ensure only builds from the secured namespace are selected
+    backstage.io/kubernetes-label-selector: app.kubernetes.io/name=parasol-insurance-secured,backstage.io/kubernetes-id=parasol-insurance-secured
+    janus-idp.io/tekton: parasol-insurance-secured
     jira/project-key: PARASOL
     quay.io/repository-slug: parasol/parasol-insurance
 spec:
