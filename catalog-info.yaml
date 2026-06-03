@@ -7,6 +7,9 @@ spec:
   targets:
     - ./templates/sample-template/template.yaml
     - ./templates/parasol-insurance-secured/template.yaml
+    - ./templates/request-kafka-topic/template.yaml
+    - ./templates/request-kafka-user/template.yaml
+    - ./templates/request-namespace/template.yaml
     - ./entities/system.yaml
     - ./entities/api.yaml
     - ./entities/components.yaml
