@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${{ values.name }}
+  labels:
+    app.kubernetes.io/managed-by: infra-app-of-apps
+  annotations:
+    app.kubernetes.io/requested-by: ${{ values.owner }}
+    openshift.io/description: Managed namespace (${{ values.size }})
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: ${{ values.name }}-quota
+  namespace: ${{ values.name }}
+  labels:
+    app.kubernetes.io/managed-by: infra-app-of-apps
+spec:
+  hard:
+    {%- if values.size == "small" %}
+    requests.cpu: "2"
+    requests.memory: 8Gi
+    limits.cpu: "2"
+    limits.memory: 8Gi
+    {%- elif values.size == "medium" %}
+    requests.cpu: "3"
+    requests.memory: 12Gi
+    limits.cpu: "3"
+    limits.memory: 12Gi
+    {%- elif values.size == "large" %}
+    requests.cpu: "6"
+    requests.memory: 24Gi
+    limits.cpu: "6"
+    limits.memory: 24Gi
+    {%- endif %}

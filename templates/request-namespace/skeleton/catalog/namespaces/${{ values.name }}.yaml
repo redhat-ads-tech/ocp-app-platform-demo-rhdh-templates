@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: namespace-${{ values.name }}
+  description: OpenShift namespace (${{ values.size }})
+  annotations:
+    backstage.io/managed-by-location: url:https://${{ values.gitlab_host }}/rhdh/infra-app-of-apps/-/blob/main/namespaces/${{ values.name }}.yaml
+  tags:
+    - openshift
+    - namespace
+spec:
+  type: namespace
+  lifecycle: production
+  owner: ${{ values.owner }}

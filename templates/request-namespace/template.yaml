@@ -1,0 +1,86 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: orchestrator-namespace-request
+  title: OpenShift Namespace Request
+  description: Request a new OpenShift namespace with resource quotas (creates a merge request for platform team approval)
+  tags:
+    - openshift
+    - infrastructure
+    - request
+    - orchestrator
+  annotations:
+    backstage.io/managed-by: orchestrator
+spec:
+  owner: rhdh
+  type: resource
+
+  parameters:
+    - title: Namespace Details
+      required:
+        - component_id
+        - namespace_owner
+        - size
+      properties:
+        component_id:
+          title: Namespace Name
+          type: string
+          description: Unique name for the namespace (lowercase, hyphens allowed)
+          pattern: "^[a-z][a-z0-9-]*$"
+        namespace_owner:
+          title: Namespace Owner
+          type: string
+          description: Team that owns this namespace
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        size:
+          title: Size
+          type: string
+          description: Resource quota for the namespace
+          default: small
+          enum:
+            - small
+            - medium
+            - large
+          enumNames:
+            - "Small (2 vCPU / 8Gi)"
+            - "Medium (3 vCPU / 12Gi)"
+            - "Large (6 vCPU / 24Gi)"
+
+  steps:
+    - id: fetch-skeleton
+      name: Render Namespace Resources
+      action: fetch:template
+      input:
+        url: ./skeleton/
+        values:
+          name: ${{ parameters.component_id }}
+          owner: ${{ parameters.namespace_owner }}
+          size: ${{ parameters.size }}
+          gitlab_host: {{ gitlab_host }}
+
+    - id: open-mr
+      name: Open Merge Request
+      action: publish:gitlab:merge-request
+      input:
+        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=rhdh
+        branchName: request/namespace-${{ parameters.component_id }}
+        title: "Request Namespace: ${{ parameters.component_id }}"
+        description: |
+          **Namespace:** `${{ parameters.component_id }}`
+          **Owner:** ${{ parameters.namespace_owner }}
+          **Size:** ${{ parameters.size }}
+
+          ---
+          Requested via Red Hat Developer Hub.
+        removeSourceBranch: true
+        reviewers:
+          - pe1
+          - pe2
+
+  output:
+    links:
+      - title: Merge Request
+        url: ${{ steps['open-mr'].output.mergeRequestUrl }}
