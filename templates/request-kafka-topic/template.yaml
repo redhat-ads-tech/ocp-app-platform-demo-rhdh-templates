@@ -4,6 +4,8 @@ metadata:
   name: request-kafka-topic
   title: Request Kafka Topic
   description: Request a new Kafka topic on the shared cluster (creates a merge request for platform team approval)
+  annotations:
+    backstage.io/techdocs-ref: dir:.
   tags:
     - kafka
     - infrastructure

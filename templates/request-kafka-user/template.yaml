@@ -4,6 +4,8 @@ metadata:
   name: request-kafka-user
   title: Request Kafka User
   description: Request a new Kafka user with topic ACLs on the shared cluster (creates a merge request for platform team approval)
+  annotations:
+    backstage.io/techdocs-ref: dir:.
   tags:
     - kafka
     - infrastructure

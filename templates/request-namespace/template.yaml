@@ -11,6 +11,7 @@ metadata:
     - orchestrator
   annotations:
     backstage.io/managed-by: orchestrator
+    backstage.io/techdocs-ref: dir:.
 spec:
   owner: rhdh
   type: resource
