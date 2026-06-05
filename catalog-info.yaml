@@ -13,3 +13,4 @@ spec:
     - ./entities/system.yaml
     - ./entities/api.yaml
     - ./entities/components.yaml
+    - ./entities/llm-inference-server/resource.yaml

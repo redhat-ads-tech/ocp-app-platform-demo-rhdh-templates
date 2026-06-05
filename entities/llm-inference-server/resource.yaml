@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: llm-inference-server
+  title: LLM Inference Server
+  description: Shared LLM inference endpoint for AI-enhanced development and applications
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+  tags:
+    - ai
+    - llm
+    - infrastructure
+spec:
+  type: ai-model
+  lifecycle: production
+  owner: rhdh
+  system: parasol-insurance
