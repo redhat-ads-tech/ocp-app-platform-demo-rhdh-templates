@@ -57,6 +57,8 @@ spec:
           workspace: source
         - name: sonar-credentials
           workspace: sonar-credentials
+        - name: maven-cache
+          workspace: maven-cache
     - name: maven-build
       runAfter:
         - clone-source
