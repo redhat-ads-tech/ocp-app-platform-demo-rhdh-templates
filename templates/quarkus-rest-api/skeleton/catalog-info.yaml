@@ -2,12 +2,13 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: ${{ values.name }}
-  description: "${{ values.description }}"
+  description: ${{ values.description }}
   annotations:
     argocd/app-name: ${{ values.name }}
     backstage.io/source-location: url:https://${{ values.gitlab_host }}/${{ values.gitlab_group }}/${{ values.name }}
+    backstage.io/kubernetes-namespace: ${{ values.name }}-dev
     backstage.io/kubernetes-id: ${{ values.name }}
-    janus-idp.io/tekton: ${{ values.name }}
+    janus-idp.io/tekton: ${{ values.name }}-build
     gitlab.com/project-slug: ${{ values.gitlab_group }}/${{ values.name }}
     jira/project-key: ${{ values.name | upper }}
     quay.io/repository-slug: parasol/${{ values.name }}
@@ -20,4 +21,3 @@ spec:
   type: service
   lifecycle: development
   owner: ${{ values.owner }}
-  scaffoldedFrom: template:default/quarkus-rest-api

@@ -4,8 +4,6 @@ metadata:
   name: quarkus-rest-api
   title: Quarkus REST API
   description: Create a secured Quarkus REST API with CI/CD pipeline, dev deployment, and production promotion
-  annotations:
-    backstage.io/template-version: "1.0.0"
   tags:
     - quarkus
     - rest-api
