@@ -6,9 +6,8 @@ metadata:
   annotations:
     argocd/app-name: ${{ values.name }}
     backstage.io/source-location: url:https://${{ values.gitlab_host }}/${{ values.gitlab_group }}/${{ values.name }}
-    backstage.io/kubernetes-namespace: ${{ values.name }}-dev
     backstage.io/kubernetes-id: ${{ values.name }}
-    janus-idp.io/tekton: ${{ values.name }}-build
+    janus-idp.io/tekton: ${{ values.name }}
     gitlab.com/project-slug: ${{ values.gitlab_group }}/${{ values.name }}
     jira/project-key: ${{ values.name | upper }}
     quay.io/repository-slug: parasol/${{ values.name }}
