@@ -21,3 +21,4 @@ spec:
   type: service
   lifecycle: development
   owner: ${{ values.owner }}
+  scaffoldedFrom: template:default/quarkus-rest-api
