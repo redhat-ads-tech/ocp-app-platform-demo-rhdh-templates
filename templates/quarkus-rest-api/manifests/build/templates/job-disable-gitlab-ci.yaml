@@ -1,0 +1,65 @@
+# Scaffolder-created GitLab projects inherit instance Auto DevOps. Parasol
+# imports disable it; publish:gitlab does not. Turn GitLab CI off so Tekton
+# is the only pipeline.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${{ values.name }}-disable-gitlab-ci
+  namespace: ${{ values.name }}-build
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 100
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: ${{ values.name }}-build
+      containers:
+        - name: disable-gitlab-ci
+          image: quay.io/agnosticd/ee-multicloud:latest
+          env:
+            - name: GITLAB_HOST
+              value: "${{ values.gitlab_host }}"
+            - name: SOURCE_PROJECT_PATH
+              value: "${{ values.owner }}/${{ values.name }}"
+            - name: GITOPS_PROJECT_PATH
+              value: "${{ values.owner }}/${{ values.name }}-gitops"
+            - name: GIT_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-basic-auth
+                  key: .git-credentials
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -euo pipefail
+
+              GITLAB_TOKEN=$(python3 -c "
+              import os, re
+              creds = os.environ.get('GIT_CREDENTIALS', '')
+              m = re.search(r'://[^:]+:([^@]+)@', creds)
+              print(m.group(1) if m else '')
+              ")
+              if [ -z "${GITLAB_TOKEN}" ]; then
+                echo "ERROR: could not extract GitLab token from gitlab-basic-auth"
+                exit 1
+              fi
+
+              disable_ci() {
+                local path="$1"
+                local encoded
+                encoded=$(P="${path}" python3 -c "import urllib.parse, os; print(urllib.parse.quote(os.environ['P'], safe=''))")
+                echo "Disabling GitLab CI on ${path}..."
+                curl -sk --fail \
+                  --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+                  --header "Content-Type: application/json" \
+                  --request PUT \
+                  --data '{"auto_devops_enabled":false,"builds_access_level":"disabled"}' \
+                  "https://${GITLAB_HOST}/api/v4/projects/${encoded}" \
+                  | python3 -c "import sys,json; p=json.load(sys.stdin); print(p.get('path_with_namespace'), 'auto_devops', p.get('auto_devops_enabled'), 'builds', p.get('builds_access_level'))"
+              }
+
+              disable_ci "${SOURCE_PROJECT_PATH}"
+              disable_ci "${GITOPS_PROJECT_PATH}"
+              echo "GitLab CI disabled; Tekton remains the CI/CD path."
