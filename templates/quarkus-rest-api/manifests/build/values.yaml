@@ -23,6 +23,10 @@ build:
 
   pipeline:
     tasks:
+      mavenBuild:
+        enabled: true
+        # Matches skeleton pom (Java 25) and Dockerfile.jvm runtime image.
+        image: registry.access.redhat.com/ubi9/openjdk-25:1.24
       buildAndPush:
         dockerfile: src/main/docker/Dockerfile.jvm
 
