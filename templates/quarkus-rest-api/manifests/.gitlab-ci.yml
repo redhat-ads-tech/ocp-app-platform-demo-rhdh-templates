@@ -1,0 +1,4 @@
+# CI/CD for this service is OpenShift Pipelines (Tekton), not GitLab CI.
+workflow:
+  rules:
+    - when: never
