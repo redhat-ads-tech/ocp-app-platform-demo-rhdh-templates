@@ -1,0 +1,9 @@
+# CI/CD for this service is OpenShift Pipelines (Tekton), not GitLab CI.
+# GitLab 17 rejects an empty/workflow-never file ("no visible job"), so this
+# dummy job exists only to keep Auto DevOps from taking over.
+skip:
+  stage: .pre
+  script:
+    - echo "CI/CD runs on OpenShift Pipelines (Tekton), not GitLab CI."
+  when: manual
+  allow_failure: true
