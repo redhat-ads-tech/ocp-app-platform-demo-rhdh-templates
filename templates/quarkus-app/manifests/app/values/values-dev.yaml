@@ -1,0 +1,35 @@
+app:
+  name: ${{ values.name }}
+
+  namespace:
+    name: ${{ values.name }}-dev
+    istio:
+      enabled: true
+
+  image:
+    repository: ${{ values.image_host }}/${{ values.image_organization }}/${{ values.image_name }}
+    tag: ${{ values.image_tag }}
+
+  environment: dev
+  runtime: quarkus
+
+  replicas: 1
+
+  readinessProbe:
+    httpGet:
+      path: /q/health/ready
+      port: 8080
+    initialDelaySeconds: 10
+    periodSeconds: 10
+
+  livenessProbe:
+    httpGet:
+      path: /q/health/live
+      port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 20
+
+  waypoint:
+    enabled: true
+
+  vcsUri: "${{ values.source_repo }}"
