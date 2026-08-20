@@ -11,6 +11,9 @@ spec:
     - name: ACS_IMAGE_SCAN_OUTPUT
       description: ACS vulnerability summary for Developer Hub
       value: $(tasks.acs-image-scan.results.SCAN_OUTPUT)
+    - name: IMAGE_TAG
+      description: Immutable image tag published by this run (git short SHA)
+      value: $(tasks.resolve-image-tag.results.image-tag)
   workspaces:
     - name: source
     - name: basic-auth
@@ -22,6 +25,12 @@ spec:
     - name: maven-cache
     {{- end }}
   tasks:
+    - name: resolve-image-tag
+      taskRef:
+        name: {{ include "build-deployer.name" . }}-resolve-image-tag
+      params:
+        - name: git-revision
+          value: $(params.git-revision)
     - name: clone-source
       taskRef:
         resolver: cluster
@@ -60,6 +69,7 @@ spec:
     {{- end }}
     - name: build-and-push
       runAfter:
+        - resolve-image-tag
         {{- if .Values.pipeline.tasks.mavenBuild.enabled }}
         - maven-build
         {{- else }}
@@ -76,7 +86,7 @@ spec:
             value: openshift-pipelines
       params:
         - name: IMAGE
-          value: {{ include "build-deployer.imageRef" . | quote }}
+          value: {{ include "build-deployer.imageRefByCommit" . | quote }}
         - name: DOCKERFILE
           value: {{ .Values.pipeline.tasks.buildAndPush.dockerfile }}
         - name: TLSVERIFY
@@ -88,6 +98,19 @@ spec:
           workspace: source
         - name: dockerconfig
           workspace: dockerconfig
+    - name: tag-latest
+      runAfter:
+        - build-and-push
+      taskRef:
+        name: {{ include "build-deployer.name" . }}-retag-image
+      params:
+        - name: SOURCE_IMAGE
+          value: {{ include "build-deployer.imageRefByCommit" . | quote }}
+        - name: DEST_IMAGE
+          value: {{ include "build-deployer.imageRef" . | quote }}
+      workspaces:
+        - name: dockerconfig
+          workspace: dockerconfig
     - name: acs-image-scan
       runAfter:
         - build-and-push
@@ -95,7 +118,7 @@ spec:
         name: {{ include "build-deployer.name" . }}-acs-image-scan
       params:
         - name: IMAGE
-          value: {{ include "build-deployer.imageRef" . | quote }}
+          value: {{ include "build-deployer.imageRefByCommit" . | quote }}
     - name: acs-image-check
       runAfter:
         - build-and-push
@@ -103,7 +126,7 @@ spec:
         name: {{ include "build-deployer.name" . }}-acs-image-check
       params:
         - name: IMAGE
-          value: {{ include "build-deployer.imageRef" . | quote }}
+          value: {{ include "build-deployer.imageRefByCommit" . | quote }}
     - name: generate-sbom
       runAfter:
         - acs-image-scan
@@ -112,7 +135,7 @@ spec:
         name: {{ include "build-deployer.name" . }}-generate-sbom
       params:
         - name: IMAGE
-          value: {{ include "build-deployer.imageRef" . | quote }}
+          value: {{ include "build-deployer.imageRefByCommit" . | quote }}
         - name: SOURCE_NAME
           value: {{ printf "%s-%s" .Values.image.name .Values.source.branch | quote }}
         - name: SOURCE_VERSION
@@ -138,6 +161,7 @@ spec:
     - name: rollout-restart
       runAfter:
         - upload-sbom-to-tpa
+        - tag-latest
       taskRef:
         name: {{ include "build-deployer.name" . }}-rollout-restart
       params:

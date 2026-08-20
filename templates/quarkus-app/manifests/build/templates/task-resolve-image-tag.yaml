@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: {{ include "build-deployer.name" . }}-resolve-image-tag
+  namespace: {{ include "build-deployer.namespace" . }}
+spec:
+  description: >-
+    Derive an immutable image tag from the git commit SHA so each pipeline
+    run publishes a unique tag instead of overwriting latest.
+  params:
+    - name: git-revision
+      type: string
+      description: Full git commit SHA from the push webhook
+  results:
+    - name: image-tag
+      description: Immutable image tag (git short SHA)
+  steps:
+    - name: resolve
+      image: registry.access.redhat.com/ubi9-minimal:latest
+      env:
+        - name: GIT_REVISION
+          value: $(params.git-revision)
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        TAG="${GIT_REVISION:0:7}"
+        printf '%s' "${TAG}" > "$(results.image-tag.path)"
+        echo "Image tag: ${TAG}"

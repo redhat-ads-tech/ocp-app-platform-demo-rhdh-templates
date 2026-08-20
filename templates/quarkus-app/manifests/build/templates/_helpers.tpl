@@ -20,10 +20,19 @@ Build service account name.
 {{- end }}
 
 {{/*
-Full image reference.
+Full image reference (floating alias, typically latest). Used by the
+dev Deployment and as the promote-pipeline source.
 */}}
 {{- define "build-deployer.imageRef" -}}
 {{- printf "%s/%s/%s:%s" .Values.image.host .Values.image.organization .Values.image.name .Values.image.tag }}
+{{- end }}
+
+{{/*
+Immutable image reference for this PipelineRun. Interpolated by Tekton
+from the resolve-image-tag task result (git short SHA).
+*/}}
+{{- define "build-deployer.imageRefByCommit" -}}
+{{- printf "%s:$(tasks.resolve-image-tag.results.image-tag)" (include "build-deployer.imageBase" .) }}
 {{- end }}
 
 {{/*
