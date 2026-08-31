@@ -3,11 +3,14 @@ kind: Template
 metadata:
   name: quarkus-rest-api
   title: Quarkus REST API
-  description: Create a secured Quarkus REST API with CI/CD pipeline, dev deployment, and production promotion
+  description: Create a Quarkus AI chatbot with RAG, prompt injection guardrails, secured CI/CD pipeline, and GitOps deployment
+  annotations:
+    backstage.io/techdocs-ref: dir:.
   tags:
     - quarkus
-    - rest-api
-    - secured
+    - ai
+    - langchain4j
+    - golden-path
 spec:
   owner: rhdh
   type: service
@@ -17,6 +20,7 @@ spec:
       required:
         - name
         - owner
+        - developerGroup
       properties:
         name:
           title: Application Name
@@ -27,6 +31,14 @@ spec:
           title: Owner
           type: string
           description: Group that owns this application
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        developerGroup:
+          title: Developer Group
+          type: string
+          description: Group granted edit access to the build, dev, and prod namespaces
           ui:field: EntityPicker
           ui:options:
             catalogFilter:
@@ -61,8 +73,8 @@ spec:
           description: ${{ parameters.description }}
           owner: ${{ parameters.owner }}
           gitlab_group: parasol
-          gitlab_host: {{ gitlab_host }}                    # replaced by import job
-          cluster_subdomain: {{ cluster_subdomain }}        # replaced by import job
+          gitlab_host: {{ gitlab_host }}
+          cluster_subdomain: {{ cluster_subdomain }}
 
     - id: publish-source
       name: Publish Source to GitLab
@@ -83,14 +95,14 @@ spec:
           name: ${{ parameters.name }}
           owner: parasol
           source_repo: ${{ steps['publish-source'].output.remoteUrl }}.git
-          image_host: {{ quay_host }}                       # replaced by import job
+          image_host: {{ quay_host }}
           image_organization: ${{ parameters.imageOrganization }}
           image_name: ${{ parameters.name }}
           image_tag: latest
-          gitlab_host: {{ gitlab_host }}                    # replaced by import job
-          cluster_subdomain: {{ cluster_subdomain }}        # replaced by import job
-          gitops_namespace: {{ rhdh_gitops_namespace }}     # replaced by import job
-          chart_repo_url: {{ chart_repo_url }}              # replaced by import job
+          gitlab_host: {{ gitlab_host }}
+          cluster_subdomain: {{ cluster_subdomain }}
+          gitops_namespace: {{ rhdh_gitops_namespace }}
+          chart_repo_url: {{ chart_repo_url }}
 
     - id: publish-manifests
       name: Publish Manifests to GitLab
@@ -101,15 +113,28 @@ spec:
         defaultBranch: main
         repoVisibility: public
 
-    - id: create-argocd-resources
-      name: Create ArgoCD Resources
-      action: argocd:create-resources
+    - id: fetch-bootstrap
+      name: Render Bootstrap Resources
+      action: fetch:template
       input:
-        appName: ${{ parameters.name }}-bootstrap
-        argoInstance: main
-        namespace: {{ rhdh_gitops_namespace }}              # replaced by import job
-        repoUrl: ${{ steps['publish-manifests'].output.remoteUrl }}.git
-        path: argocd
+        url: ./bootstrap/
+        targetPath: bootstrap
+        values:
+          name: ${{ parameters.name }}
+          owner: parasol
+          developer_group: ${{ parameters.developerGroup }}
+          gitlab_host: {{ gitlab_host }}
+          gitops_namespace: {{ rhdh_gitops_namespace }}
+
+    - id: push-bootstrap
+      name: Push Bootstrap to Infrastructure Repo
+      action: gitlab:repo:push
+      input:
+        repoUrl: {{ gitlab_host }}?repo=infra-app-of-apps&owner=rhdh
+        branchName: main
+        commitMessage: "feat: bootstrap ${{ parameters.name }} (build, dev, prod)"
+        targetPath: app-bootstraps/${{ parameters.name }}
+        sourcePath: bootstrap
 
     - id: register
       name: Register Component
@@ -127,3 +152,14 @@ spec:
       - title: Open in catalog
         icon: catalog
         entityRef: ${{ steps.register.output.entityRef }}
+    text:
+      - title: Next Steps
+        content: |
+          Argo CD Applications might take a moment to settle and deploy the initial environment.
+
+          Your application has three environments:
+          - **Build** (${{ parameters.name }}-build) — secured CI/CD pipeline
+          - **Dev** (${{ parameters.name }}-dev) — development deployment
+          - **Prod** (${{ parameters.name }}-prod) — production deployment
+
+          Push code to the source repository to trigger the build pipeline.

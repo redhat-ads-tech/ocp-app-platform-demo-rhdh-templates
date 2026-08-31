@@ -3,6 +3,7 @@ app:
 
   namespace:
     name: ${{ values.name }}-prod
+    create: false
     istio:
       enabled: true
 

@@ -1,8 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${{ values.name }}
+  name: ${{ values.name }}-dev
   namespace: ${{ values.gitops_namespace }}
+  labels:
+    rhdh.redhat.com/app-name: ${{ values.name }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -22,5 +24,4 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
       - RespectIgnoreDifferences=true

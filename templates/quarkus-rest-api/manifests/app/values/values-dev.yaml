@@ -3,6 +3,7 @@ app:
 
   namespace:
     name: ${{ values.name }}-dev
+    create: false
     istio:
       enabled: true
 
