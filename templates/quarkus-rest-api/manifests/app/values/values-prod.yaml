@@ -3,6 +3,7 @@ app:
 
   namespace:
     name: ${{ values.name }}-prod
+    create: false
     istio:
       enabled: true
 
@@ -25,5 +26,17 @@ app:
     enabled: true
     minReplicas: 2
     maxReplicas: 5
+
+  envValueFrom:
+    - name: QUARKUS_LANGCHAIN4J_OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: ${{ values.name }}-litellm
+          key: QUARKUS_LANGCHAIN4J_OPENAI_API_KEY
+    - name: QUARKUS_LANGCHAIN4J_OPENAI_BASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: ${{ values.name }}-litellm
+          key: QUARKUS_LANGCHAIN4J_OPENAI_BASE_URL
 
   vcsUri: "${{ values.source_repo }}"

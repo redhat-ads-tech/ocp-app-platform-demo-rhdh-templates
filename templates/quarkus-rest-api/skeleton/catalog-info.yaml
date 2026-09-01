@@ -4,7 +4,8 @@ metadata:
   name: ${{ values.name }}
   description: ${{ values.description }}
   annotations:
-    argocd/app-name: ${{ values.name }}
+    argocd/app-selector: rhdh.redhat.com/app-name=${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
     backstage.io/source-location: url:https://${{ values.gitlab_host }}/${{ values.gitlab_group }}/${{ values.name }}
     backstage.io/kubernetes-namespace: ${{ values.name }}-dev
     backstage.io/kubernetes-id: ${{ values.name }}

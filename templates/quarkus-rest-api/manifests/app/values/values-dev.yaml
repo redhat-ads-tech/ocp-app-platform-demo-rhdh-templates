@@ -3,6 +3,7 @@ app:
 
   namespace:
     name: ${{ values.name }}-dev
+    create: false
     istio:
       enabled: true
 
@@ -20,5 +21,17 @@ app:
 
   waypoint:
     enabled: true
+
+  envValueFrom:
+    - name: QUARKUS_LANGCHAIN4J_OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: ${{ values.name }}-litellm
+          key: QUARKUS_LANGCHAIN4J_OPENAI_API_KEY
+    - name: QUARKUS_LANGCHAIN4J_OPENAI_BASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: ${{ values.name }}-litellm
+          key: QUARKUS_LANGCHAIN4J_OPENAI_BASE_URL
 
   vcsUri: "${{ values.source_repo }}"

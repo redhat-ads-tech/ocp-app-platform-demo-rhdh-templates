@@ -1,79 +1,66 @@
-# rest-api
+# ${{ values.name }}
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+${{ values.description }}
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+An AI-powered customer support chatbot built with [Quarkus](https://quarkus.io/) and
+[LangChain4j](https://docs.langchain4j.dev/), scaffolded by the Quarkus REST API golden path
+template in Red Hat Developer Hub.
 
-## Running the application in dev mode
+## Features
 
-You can run your application in dev mode that enables live coding using:
+- **RAG chatbot** — Uses Retrieval-Augmented Generation to answer questions grounded in company policy
+- **Prompt injection guardrails** — Detects and blocks prompt injection attacks using a secondary LLM
+- **Function calling** — AI assistant can look up and cancel bookings through tool integration
+- **WebSocket chat UI** — Real-time bidirectional communication
 
-```shell script
+## Environments
+
+| Environment | Namespace | Purpose |
+|-------------|-----------|---------|
+| Build | `${{ values.name }}-build` | Secured CI/CD pipeline with scanning, signing, and SBOM generation |
+| Dev | `${{ values.name }}-dev` | Development deployment (auto-deployed on push) |
+| Prod | `${{ values.name }}-prod` | Production deployment (promoted via git tag) |
+
+## Running locally in dev mode
+
+```shell
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+You'll need an OpenAI-compatible LLM endpoint. Set these environment variables:
 
-## Packaging and running the application
+```shell
+export QUARKUS_LANGCHAIN4J_OPENAI_BASE_URL="http://localhost:11434/v1"
+export QUARKUS_LANGCHAIN4J_OPENAI_API_KEY="demo"
+```
 
-The application can be packaged using:
+The chat UI is available at <http://localhost:8080>. Dev UI is at <http://localhost:8080/q/dev/>.
 
-```shell script
+## Building
+
+```shell
 ./mvnw package
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+The application is runnable with `java -jar target/quarkus-app/quarkus-run.jar`.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+## CI/CD Pipeline
 
-If you want to build an _über-jar_, execute the following command:
+Pushing to the `main` branch triggers the build pipeline which:
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+1. Builds the application with Maven
+2. Builds and pushes a container image to Quay
+3. Scans the image with ACS (Advanced Cluster Security)
+4. Signs the image with Tekton Chains
+5. Generates and uploads an SBOM to TPA (Trusted Profile Analyzer)
+6. Deploys to the dev environment via GitOps
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+### Production Promotion
 
-## Creating a native executable
+Create a git tag to promote to production.
 
-You can create a native executable using:
+## Learn More
 
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/rest-api-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-
-## Provided Code
-
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
-
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+- [Quarkus documentation](https://quarkus.io/)
+- [Quarkus LangChain4j extension](https://docs.quarkiverse.io/quarkus-langchain4j/dev/index.html)
+- [LangChain4j documentation](https://docs.langchain4j.dev/)

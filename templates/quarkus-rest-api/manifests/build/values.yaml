@@ -3,6 +3,7 @@ build:
 
   namespace:
     name: ${{ values.name }}-build
+    create: false
     istio:
       enabled: false
 
